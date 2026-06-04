@@ -1,0 +1,43 @@
+name: Monitor de Página Web
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Copiar código do repositório
+      uses: actions/checkout@v4
+      with:
+        ref: main  # Garante que trabalha diretamente na ramificação principal
+        persist-credentials: true
+
+    - name: Configurar o Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+
+    - name: Instalar dependências
+      run: |
+        pip install requests beautifulsoup4
+
+    - name: Executar Script de Monitorização
+      env:
+        EMAIL_REMETENTE: ${{ secrets.EMAIL_REMETENTE }}
+        EMAIL_SENHA: ${{ secrets.EMAIL_SENHA }}
+        EMAIL_DESTINATARIO: ${{ secrets.EMAIL_DESTINATARIO }}
+      run: python monitor.py
+
+    - name: Guardar alterações no GitHub
+      run: |
+        git config --global user.name 'Bot de Monitorização'
+        git config --global user.email 'bot@monitor.com'
+        git add links_guardados.txt
+        # Só faz o commit se o ficheiro de texto tiver novos links detetados
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Lista de links atualizada [skip ci]" && git push origin main)
