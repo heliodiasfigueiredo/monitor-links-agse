@@ -4,7 +4,8 @@ import smtplib
 import re
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
-
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 # =========================================================================
 # CONFIGURAÇÃO AVANÇADA: Inclui o Feed RSS onde as novidades entram na hora
 # =========================================================================
